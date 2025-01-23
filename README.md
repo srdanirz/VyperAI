@@ -1,4 +1,4 @@
-# Vyper AI 🤖
+# Vyper AI
 
 **Vyper AI** es una plataforma revolucionaria que combina automatización avanzada con inteligencia artificial para crear soluciones accesibles, poderosas y altamente personalizables. Diseñada para usuarios y empresas de todos los niveles, Vyper AI permite automatizar procesos complejos de manera sencilla y eficiente.
 
@@ -12,6 +12,20 @@ Vyper AI lleva la automatización más allá de lo que ofrecen las herramientas 
 3. **Colaboración y comunidad:** Un marketplace que permite compartir, descargar y mejorar soluciones creadas por otros usuarios.
 4. **Integraciones avanzadas:** Compatibilidad con APIs y herramientas como Firecrawl, Operator (OpenAI), Slack y más, lo que amplía las capacidades de la plataforma.
 5. **Flexibilidad de implementación:** Ejecución en la nube, local o en infraestructura privada, ideal para industrias con altos estándares de privacidad.
+
+---
+
+## Nota importante sobre Operator de OpenAI
+El lanzamiento de Operator por parte de OpenAI, a $200/mes, marca un nuevo paso en la automatización avanzada. Sin embargo, en comparación, **Vyper AI** ofrece una propuesta diferenciada y poderosa:
+
+- **Rendimiento superior:** Adaptado para procesos más complejos.
+- **Económico:** Vyper AI ofrece precios competitivos para garantizar accesibilidad.
+- **Flexibilidad:** Con soporte para cualquier modelo LLM, no está limitado a una solución propietaria.
+- **Código abierto:** Vyper AI fomenta la innovación a través de su enfoque open source.
+- **Conexión directa con navegadores reales:** Ideal para scraping avanzado y tareas dinámicas.
+- **Automatización real:** Diseñada para casos de uso específicos que van más allá de lo que Operator ofrece.
+
+> **Nota:** Si encuentras publicaciones sobre Operator, recuerda que Vyper AI ya permite muchas de estas capacidades con mayor flexibilidad y control. 
 
 ---
 
@@ -99,5 +113,3 @@ Vyper AI tiene como objetivo democratizar la automatización avanzada, empoderan
 - [Documentación Oficial](https://docs.vyper-ai.com)
 - [Marketplace](https://marketplace.vyper-ai.com)
 - [Foro de Discusión](https://community.vyper-ai.com)
-```
-
