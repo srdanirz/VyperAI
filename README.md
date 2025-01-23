@@ -16,7 +16,7 @@ Vyper AI lleva la automatización más allá de lo que ofrecen las herramientas 
 ---
 
 ## Nota importante sobre Operator de OpenAI
-El lanzamiento de Operator por parte de OpenAI, a $200/mes, marca un nuevo paso en la automatización avanzada. Sin embargo, en comparación, **Vyper AI** ofrece una propuesta diferenciada y poderosa:
+El lanzamiento de Operator por parte de OpenAI, a $200/mes, marca un nuevo paso en la automatización avanzada. Sin embargo, en comparación, **Browser Use que es un open source** ofrece una propuesta diferenciada y poderosa contra Operator:
 
 - **Rendimiento superior:** Adaptado para procesos más complejos.
 - **Económico:** Vyper AI ofrece precios competitivos para garantizar accesibilidad.
