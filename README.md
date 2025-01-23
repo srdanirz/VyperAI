@@ -25,7 +25,7 @@ El lanzamiento de Operator por parte de OpenAI, a $200/mes, marca un nuevo paso 
 - **Conexión directa con navegadores reales:** Ideal para scraping avanzado y tareas dinámicas.
 - **Automatización real:** Diseñada para casos de uso específicos que van más allá de lo que Operator ofrece.
 
-> **Nota:** Si encuentras publicaciones sobre Operator, recuerda que Vyper AI ya permite muchas de estas capacidades con mayor flexibilidad y control. 
+> **Nota:** Vyper AI puede beneficiarse tanto de Operator como de Browser-use, integrando estas herramientas como APIs para extender sus capacidades sin competir directamente con ellas.
 
 ---
 
@@ -83,7 +83,7 @@ El lanzamiento de Operator por parte de OpenAI, a $200/mes, marca un nuevo paso 
 
 ---
 
-## Visín y Misión
+## Visión y Misión
 
 Vyper AI tiene como objetivo democratizar la automatización avanzada, empoderando a individuos y empresas para innovar de manera colaborativa y eficiente. Con un enfoque en personalización, privacidad y comunidad, Vyper AI está cambiando la manera en que las personas trabajan con la tecnología.
 
