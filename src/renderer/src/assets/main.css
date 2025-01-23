@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* **************FONT FAMILY PLUS JAKARTA SANS****************** */
+@font-face {
+  font-family: 'JAKARTA BOLD';
+  src: url('./fonts/PlusJakartaSans-Bold.ttf');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JAKARTA MEDIUM';
+  src: url('./fonts/PlusJakartaSans-Medium.ttf');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JAKARTA LIGHT';
+  src: url('./fonts/PlusJakartaSans-Light.ttf');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JAKARTA REGULAR';
+  src: url('./fonts/PlusJakartaSans-Regular.ttf');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JAKARTA SEMIBOLD';
+  src: url('./fonts/PlusJakartaSans-SemiBold.ttf');
+  font-display: swap;
+}
+
+@layer base {
+  html, body {
+    @apply w-full h-full overflow-hidden;
+    background-color: theme('colors.background') !important;
+  }
+
+  #root {
+    @apply w-full h-full;
+  }
+
+  /* Layout containers */
+  .app-container {
+    @apply w-full h-full mx-auto overflow-hidden;
+    min-width: 1380px;
+    max-width: 1400px;
+  }
+
+  .content-container {
+    @apply w-full h-full p-4 overflow-auto;
+  }
+
+  .dashboard-container {
+    @apply w-full mx-auto px-4;
+    min-width: 1380px;
+  }
+
+  /* Table styles */
+  .table-container {
+    @apply w-full overflow-x-auto;
+  }
+
+  table {
+    @apply w-full table-auto;
+  }
+
+  /* Form elements */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+    @apply bg-transparent border-none outline-none;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  @apply w-1 h-0;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-green rounded-full;
+}
+
+::-webkit-scrollbar-corner {
+  @apply bg-green;
+}
+
+/* Utility classes */
+@layer utilities {
+  @keyframes slowPing {
+    75%, 100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  .animate-slow-ping {
+    animation: slowPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .grid-center {
+    @apply grid place-items-center;
+  }
+
+  /* Añade esto en main.css, justo después de los keyframes existentes */
+  @keyframes snakeAttack {
+    0% { 
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+      z-index: 100;
+    }
+    25% { 
+      transform: scale(1.5) rotate(90deg);
+      z-index: 100;
+    }
+    50% { 
+      transform: scale(2) rotate(90deg) translateX(50vw);
+      z-index: 100;
+    }
+    75% { 
+      transform: scale(2.5) rotate(90deg) translateX(50vw) translateY(100vh);
+      z-index: 100;
+    }
+    100% { 
+      transform: scale(3) rotate(90deg) translateX(50vw) translateY(100vh);
+      opacity: 0;
+      z-index: 100;
+    }
+  }
+
+  .animate-snake-attack {
+    animation: snakeAttack 1.5s ease-in-out forwards;
+    position: relative;
+    z-index: 100;
+  }
+
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 50% 0%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    75% {
+      background-position: 50% 100%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .animate-gradient {
+    animation: gradientAnimation 10s ease-in-out infinite;
+    background-size: 300% 300%;
+  }
+
+}
+

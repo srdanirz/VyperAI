@@ -1,0 +1,35 @@
+.toaster {
+  position: fixed;
+  top: 50px; /* Adjust top position as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.success {
+  background-color: #38ff9b;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.error {
+  background-color: rgb(240, 73, 73);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.warning {
+  background-color: orange;
+  padding: 16px;
+  border-radius: 8px;
+}

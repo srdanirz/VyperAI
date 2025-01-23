@@ -1,0 +1,39 @@
+appId: com.vyper.app
+productName: Vyper Bot
+icon: ./src/renderer/src/assets/images/icon.png
+directories:
+  buildResources: dist
+files:
+  - "!**/.vscode/*"
+  - "!src/*"
+  - "!build/*"
+  - "!electron.vite.config.{js,ts,mjs,cjs,jsx}"
+  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
+  - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+asarUnpack:
+  - "resources/**"
+extraResources:
+  - from: "lib"
+    to: "lib"
+    filter:
+      - "**/*"
+      - "!**/*.md"
+      - "!**/*.txt"
+win:
+  executableName: Vyper Bot
+  icon: ./src/renderer/src/assets/images/icon.png
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+  oneClick: true
+  allowToChangeInstallationDirectory: false
+npmRebuild: false
+publish:
+  provider: generic
+  url: https:/vyper.com/auto-updates
