@@ -1,29 +1,32 @@
+// src/renderer/src/App.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { useAtom } from "jotai";
 import { isAuthenticated, licenseAtom } from "./state/jotai";
-import { useSetAtom } from "jotai/index";
 import NotFound from "./routes/NotFound";
 import Login from "./routes/Login";
 import Proxy from "./routes/Proxy";
 import Dashboard from "./components/dashboards/Dashboard";
 import UserDashboard from "./routes/UserDashboard";
+import Settings from "./routes/Settings";
 import Storage from "./routes/Storage";
 import Home from "./routes/Home";
 import TopBar from "./components/TopBar";
 import { Toaster } from 'react-hot-toast';
+import Tutorial from "./components/tutorial/Tutorial";
 import useOnTasksEvent from "./hooks/useOnTasksEvent";
 
 function App() {
   const navigate = useNavigate();
   const [isLicenseValid, setIsLicenseValid] = useAtom(isAuthenticated);
+  const [showTutorial, setShowTutorial] = useState(false);
   const setLicense = useSetAtom(licenseAtom);
   const [loading, setLoading] = useState(true);
   const [wsConnected, setWsConnected] = useState(false);
 
-  useOnTasksEvent(); 
+  useOnTasksEvent();
 
   useEffect(() => {
     const run = async () => {
@@ -31,6 +34,7 @@ function App() {
       if (licenseValidationResponse) {
         setLicense(licenseValidationResponse.result);
         setIsLicenseValid(true);
+        setShowTutorial(!localStorage.getItem('tutorialCompleted'));
       } else {
         setIsLicenseValid(false);
         setLoading(false);
@@ -74,19 +78,24 @@ function App() {
     );
   }
 
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    localStorage.setItem('tutorialCompleted', 'true');
+  };
+
   return (
     <div className="w-full h-full bg-[#14141F]">
-      <TopBar/>
-            <Toaster
-        position="top-center" 
+      <TopBar />
+      <Toaster
+        position="top-center"
         toastOptions={{
           style: {
             background: '#14141F',
             color: '#fff',
             padding: '10px 15px',
             borderRadius: '8px',
-            maxWidth: '400px', 
-            textAlign: 'center', 
+            maxWidth: '400px',
+            textAlign: 'center',
             margin: '0 auto',
           },
           success: {
@@ -109,20 +118,22 @@ function App() {
           },
         }}
       />
+      {showTutorial && isLicenseValid && (
+        <Tutorial onComplete={handleTutorialComplete} />
+      )}
       <Routes>
-        <Route path="/login" element={<Login/>}/>
+        <Route path="/login" element={<Login />} />
         {isLicenseValid && (
           <Route path="/" element={<Dashboard />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/proxy" element={<Proxy />} />
-          <Route path="/profile" element={<UserDashboard />} />
-          <Route path="/storage" element={<Storage />} /> {/* Nueva ruta */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
+            <Route index element={<Home />} />
+            <Route path="proxy" element={<Proxy />} />
+            <Route path="profile" element={<UserDashboard />} />
+            <Route path="settings/*" element={<Settings />} />
+            <Route path="storage" element={<Storage />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
         )}
-        {!isLicenseValid && (
-          <Route path="*" element={<Navigate to="/login" />} />
-        )}
+        {!isLicenseValid && <Route path="*" element={<Navigate to="/login" />} />}
       </Routes>
     </div>
   );
