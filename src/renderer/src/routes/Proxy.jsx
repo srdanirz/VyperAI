@@ -1,7 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import CustomisedDialog from "../components/Dialog";
-import Button from "../components/Button";
-import { addIcon, deleteIcon, editIcon } from "../utils/Images";
+import { useState, useRef } from "react";
+import { Dialog } from "../components/ui/Dialog";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { 
+  GitBranch,
+  Upload, 
+  Download,
+  Edit2,
+  Trash2,
+  Plus,
+  Search,
+  RefreshCw
+} from 'lucide-react';
 import { useDispatch, useSelector } from "react-redux";
 import { getActiveGroup, getGroupList } from "../selector";
 import {
@@ -16,7 +26,7 @@ import {
   proxiesArrayToStr,
   proxiesStrToArray,
 } from "../utils";
-import ModalContainer from "../modals/ModalContainer";
+import toast from "react-hot-toast";
 import { FadeLoader } from "react-spinners";
 
 const columns = ["Task", "Proxy", "Username", "Password", "Action"];
@@ -32,7 +42,6 @@ const Proxy = () => {
     proxies: false,
   });
 
-  // Modal states
   const [isDeleteAccountShow, setIsDeleteAccountShow] = useState(false);
   const [isEditAccountShow, setIsEditAccountShow] = useState(false);
   const [isEditAccountValue, setIsEditAccountValue] = useState("");
@@ -48,819 +57,571 @@ const Proxy = () => {
   const selectedGroup = useSelector(getActiveGroup);
   const rowsPerPage = 150;
 
+  // Effect to simulate loading state
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    setTimeout(() => setIsLoading(false), 2000);
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedGroup]);
-  
+  // Reset to first page when group changes  
+  useEffect(() => setCurrentPage(1), [selectedGroup]);
+
   // Pagination calculations
-  const totalPages = Math.ceil(selectedGroup?.proxies.length / rowsPerPage);
+  const totalPages = Math.ceil(selectedGroup?.proxies?.length / rowsPerPage);
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const proxies = selectedGroup?.proxies.map((y, idx) => ({...y, idx}));
   const currentRows = proxies?.slice(indexOfFirstRow, indexOfLastRow);
 
-  // File handlers
-  const handleImportClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleImportClick = () => fileInputRef.current.click();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-  
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      let proxies = [];
-      if (e.target.result.includes("\r\n")) {
-        proxies = e.target.result.split("\r\n");
-      } else {
-        proxies = e.target.result.split("\n");
-      }
-      
-      proxies = proxies
-        .filter(proxyStr => proxyStr.trim() !== '')
-        .map((proxyStr) => {
-          const tempArr = proxyStr.split(":");
-          if (tempArr.length >= 4) {
+      const proxies = e.target.result.split(/\r?\n/)
+        .filter(line => line.trim())
+        .map(line => {
+          const parts = line.split(':');
+          if (parts.length >= 4) {
             return {
               id: getId(),
-              proxy: tempArr[0] + ":" + tempArr[1],
-              username: tempArr[2],
-              password: tempArr[3],
+              proxy: `${parts[0]}:${parts[1]}`,
+              username: parts[2],
+              password: parts[3]
             };
           }
           return null;
         })
-        .filter((proxy) => proxy !== null);
-  
-      if (proxies.length > 0) {
-        const newGroupName = file.name.replace(/\.[^/.]+$/, "");
+        .filter(Boolean);
+
+      if (proxies.length) {
         const newGroup = {
           id: getId(),
-          name: newGroupName,
-          proxies: proxies,
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          proxies
         };
-  
         dispatch(addGroup(newGroup));
         dispatch(initActiveGroup(newGroup));
+        toast.success('Proxies imported successfully');
       } else {
-        alert("No valid proxies found in the file.");
+        toast.error('No valid proxies found in file');
       }
     };
     reader.readAsText(file);
   };
 
   const handleExport = () => {
-    if (!selectedGroup || selectedGroup.proxies.length === 0) return;
+    if (!selectedGroup?.proxies?.length) {
+      toast.error('No proxies to export');
+      return;
+    }
 
-    const fileContent = selectedGroup.proxies
-      .map((proxy) => `${proxy.proxy}:${proxy.username}:${proxy.password}`)
-      .join("\n");
-
-    const blob = new Blob([fileContent], { type: "text/plain" });
+    const content = selectedGroup.proxies
+      .map(p => `${p.proxy}:${p.username}:${p.password}`)
+      .join('\n');
+    
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `${selectedGroup.name}.txt`;
-    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    toast.success('Proxies exported successfully');
   };
 
-  // Form change handler
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCreateGroupState((prev) => ({ ...prev, [name]: value }));
+    setCreateGroupState(prev => ({ ...prev, [name]: value }));
     
-    if (name === "name" && validationErr?.name && value) {
-      setValidationErr((prev) => ({
-        ...prev,
-        name: false,
-      }));
+    if (name === 'name' && validationErr?.name && value) {
+      setValidationErr(prev => ({ ...prev, name: false }));
     }
-    
-    if (name === "proxies" && validationErr?.proxies) {
+
+    if (name === 'proxies' && validationErr?.proxies) {
       if (/^((\d{1,3}\.){3}\d{1,3}:\d{1,5}:[^:\s]+:[^:\s]+\n?)*$/.test(value)) {
-        setValidationErr((prev) => ({
-          ...prev,
-          proxies: false,
-        }));
+        setValidationErr(prev => ({ ...prev, proxies: false }));
       }
     }
   };
 
-  // Group handlers
   const handleCreateProxyGroup = () => {
     if (!createGroupState?.name) {
-      setValidationErr((prev) => ({
-        ...prev,
-        name: true,
-      }));
-      return;
-    }
-    if (
-      !/^([^:\s]+:[^:\s]+:[^:\s]+:[^:\s]+(?:\n|$))+$/.test(
-        createGroupState?.proxies,
-      )
-    ) {
-      setValidationErr((prev) => ({
-        ...prev,
-        proxies: true,
-      }));
+      setValidationErr(prev => ({ ...prev, name: true }));
       return;
     }
 
-    dispatch(
-      addGroup({
-        name: createGroupState?.name,
-        id: getId(),
-        proxies: createGroupState?.proxies
-          ? createGroupState?.proxies.split("\n")?.map((proxiesStr) => {
-              const tempArr = proxiesStr?.split(":");
-              return {
-                id: getId(),
-                proxy: tempArr[0] + ":" + tempArr[1],
-                username: tempArr[2],
-                password: tempArr[3],
-              };
-            })
-          : [],
-      }),
-    );
+    if (!/^([^:\s]+:[^:\s]+:[^:\s]+:[^:\s]+(?:\n|$))+$/.test(createGroupState?.proxies)) {
+      setValidationErr(prev => ({ ...prev, proxies: true }));
+      return;
+    }
+
+    const proxies = createGroupState.proxies
+      .split('\n')
+      .filter(line => line.trim())
+      .map(line => {
+        const [proxy, port, username, password] = line.split(':');
+        return {
+          id: getId(),
+          proxy: `${proxy}:${port}`,
+          username,
+          password
+        };
+      });
+
+    dispatch(addGroup({
+      id: getId(),
+      name: createGroupState.name,
+      proxies
+    }));
+
     setIsOpenGroupModal(false);
+    toast.success('Proxy group created successfully');
   };
 
-  const handleEditGroup = () => {
-    const payload = {
-      name: createGroupState?.name,
-      id: createGroupState?.id,
-      proxies: createGroupState?.proxies
-        ? createGroupState?.proxies.split("\n")?.map((proxiesStr) => {
-            const tempArr = proxiesStr?.split(":");
-            return {
-              id: getId(),
-              proxy: tempArr[0] + ":" + tempArr[1],
-              username: tempArr[2],
-              password: tempArr[3],
-            };
-          })
-        : [],
-    };
-
-    dispatch(updateGroup(payload));
-    if (payload?.id === selectedGroup?.id) dispatch(initActiveGroup(payload));
-    setIsEditGroupShow(false);
-  };
-
-  const handleGroupClicked = (group) => {
-    dispatch(initActiveGroup(group));
-  };
-
-  const handleDeleteGroup = (group) => {
-    dispatch(deleteGroup(isDeleteGroupShow?.id));
-    if (isDeleteGroupShow?.id === selectedGroup?.id)
-      dispatch(initActiveGroup(null));
-    setIsDeleteGroupShow(false);
-  };
-
-  // Account handlers
-  const handleDeleteAccount = () => {
-    if (isDeleteAccountShow) {
-      const payload = {
-        ...selectedGroup,
-        proxies: selectedGroup?.proxies?.filter(
-          (acc) => acc?.id != isDeleteAccountShow?.id,
-        ),
-      };
-      dispatch(updateGroup(payload));
-      dispatch(initActiveGroup(payload));
-      setIsDeleteAccountShow(false);
-    }
-  };
-
-  const handleEditAccount = () => {
-    const payload = {
-      ...isEditAccountValue,
-      id: isEditAccountShow?.id,
-    };
-
-    const updatedGroup = {
-      ...selectedGroup,
-      proxies: selectedGroup?.proxies.map((acc) =>
-        acc?.id === payload?.id ? payload : acc,
-      ),
-    };
-
-    dispatch(updateGroup(updatedGroup));
-    dispatch(initActiveGroup(updatedGroup));
-    setIsEditAccountShow(false);
-    setIsEditAccountValue(false);
-  };
-
-  const handleEditAll = () => {
-    const proxyRegex = /^([^:\s]+):(\d+):([^:\s]+):([^:\s]+(?:_[^:\s]+)*)$/;
-    
-    const proxiesAreValid = editAllValue.split('\n').every(line => 
-      line.trim() === '' || proxyRegex.test(line.trim())
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-[#14141F]">
+        <FadeLoader color="#38ff9b" />
+      </div>
     );
-  
-    if (proxiesAreValid) {
-      setEditAllValidation(false);
-      const formattedProxies = editAllValue.split('\n')
-        .filter(line => line.trim() !== '')
-        .map(line => {
-          const [host, port, username, rest] = line.split(':');
-          const password = rest.split('_')[0];
-          return {
-            id: getId(),
-            proxy: `${host}:${port}`,
-            username: username,
-            password: password
-          };
-        });
-  
-      dispatch(
-        updateGroup({
-          ...selectedGroup,
-          proxies: formattedProxies,
-        })
-      );
-      dispatch(
-        initActiveGroup({
-          ...selectedGroup,
-          proxies: formattedProxies,
-        })
-      );
-      setIsShowEditAll(false);
-    } else {
-      setEditAllValidation(true);
-    }
-  };
+  }
 
-  const handleDeleteAllProxies = () => {
-    dispatch(
-      updateGroup({
-        ...selectedGroup,
-        proxies: [],
-      }),
-    );
-    dispatch(
-      initActiveGroup({
-        ...selectedGroup,
-        proxies: [],
-      }),
-    );
-    setIsShowDeleteAll(false);
-  };
+  return (
+    <div className="min-h-screen p-8 font-Jakarta600">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Proxy Manager</h1>
+        
+        <div className="flex items-center gap-3">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".txt"
+          />
+          
+          <Button
+            onClick={handleImportClick}
+            variant="secondary"
+            icon={Upload}
+          >
+            Import
+          </Button>
 
-  // Modal components
-  const renderModals = () => (
-    <>
-      <CustomisedDialog
-        {...{
-          icon: addIcon,
-          title: "Create Proxy Group",
-          className: "hidden", // Ocultamos el botón del dialog
-          // Eliminamos buttonText ya que no necesitamos este botón
-          leftBtnStyle: "",
-          rightBtnStyle: "",
-          rightBtnText: "Create",
-          leftBtnText: "Cancel",
-          open: isOpenGroupModal,
-          handleClose: () => {
+          <Button
+            onClick={handleExport}
+            variant="secondary" 
+            icon={Download}
+            disabled={!selectedGroup?.proxies?.length}
+          >
+            Export
+          </Button>
+
+          <Button
+            onClick={() => setIsShowEditAll(true)}
+            variant="secondary"
+            icon={Edit2}
+          >
+            Edit All
+          </Button>
+
+          <Button
+            onClick={() => setIsShowDeleteAll(true)}
+            variant="secondary"
+            icon={Trash2}
+          >
+            Delete All
+          </Button>
+
+          <Button
+            onClick={() => setIsOpenGroupModal(true)}
+            variant="primary"
+            icon={Plus}
+          >
+            New Group
+          </Button>
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-[280px,1fr] gap-6">
+        {/* Sidebar */}
+        <div className="bg-[#1B1B26] rounded-xl p-4">
+          <div className="mb-4">
+            <Input
+              icon={Search}
+              placeholder="Search groups..."
+              className="w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            {groupList.map(group => (
+              <div 
+                key={group.id}
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                  group.id === selectedGroup?.id
+                    ? "bg-[#38ff9b]/10"
+                    : "hover:bg-[#2A2A40]"
+                }`}
+              >
+                <button
+                  onClick={() => dispatch(initActiveGroup(group))}
+                  className="flex-1 text-left"
+                >
+                  <span className="text-white">{group.name}</span>
+                  <span className="ml-2 text-sm text-gray-400">
+                    ({group.proxies.length})
+                  </span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setCreateGroupState({
+                        ...group,
+                        proxies: parseProxiesArray(group.proxies)
+                      });
+                      setIsEditGroupShow(true);
+                    }}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsDeleteGroupShow(group)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-[#1B1B26] rounded-xl p-6">
+          <div className="mb-6">
+            <Input
+              icon={Search}
+              placeholder="Search proxies..."
+              className="w-full max-w-md"
+            />
+          </div>
+
+          {/* Table */}
+          <div className="relative overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-[#2A2A40] text-white">
+                <tr>
+                  {columns.map((col, i) => (
+                    <th key={i} className="p-4 font-medium">
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#2A2A40]">
+                {currentRows?.map((proxy, i) => (
+                  <tr key={i} className="hover:bg-[#2A2A40]/50">
+                    <td className="p-4">{proxy.idx + 1}</td>
+                    <td className="p-4">{proxy.proxy}</td>
+                    <td className="p-4">{proxy.username}</td>
+                    <td className="p-4">{proxy.password}</td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setIsEditAccountShow(proxy);
+                            setIsEditAccountValue(proxy);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setIsDeleteAccountShow(proxy)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-400">
+                Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, selectedGroup?.proxies?.length)} of {selectedGroup?.proxies?.length} proxies
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                >
+                  Previous
+                </Button>
+
+                <span className="text-white px-4">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <Button
+                  variant="secondary"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dialogs */}
+      <Dialog
+        open={isOpenGroupModal}
+        onClose={() => {
+          setIsOpenGroupModal(false);
+          setValidationErr({ name: false, proxies: false });
+        }}
+        title="Create Proxy Group"
+        primaryAction={{
+          label: "Create",
+          onClick: handleCreateProxyGroup
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => {
             setIsOpenGroupModal(false);
             setValidationErr({ name: false, proxies: false });
-          },
-          openModal: () => setIsOpenGroupModal(true),
-          handleSubmit: handleCreateProxyGroup,
+          }
         }}
       >
-        <div className="w-[500px] text-white p-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <p>Proxy Group Name</p>
-            {validationErr.name && (
-              <p className="text-[#ff3856] font-Jakarta300 text-[14px]">
-                (Invalid group name)
-              </p>
-            )}
-          </div>
-          <div className="rounded-[10px] bg-[#1B1B26] mt-2 w-fit">
-            <input
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-white">Group Name</label>
+              {validationErr.name && (
+                <span className="text-red-500 text-sm">Invalid group name</span>
+              )}
+            </div>
+            <Input
               name="name"
+              placeholder="Enter group name"
               onChange={handleChange}
-              type="text"
-              placeholder="Enter Proxy Group Name"
-              className="bg-[#14141F] w-[430px] rounded-[10px] outline-none p-3"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-white">Proxies</label>
+              {validationErr.proxies && (
+                <span className="text-red-500 text-sm">Invalid proxy format</span>
+              )}
+            </div>
+            <textarea
+              name="proxies"
+              placeholder="IP:Port:Username:Password"
+              onChange={handleChange}
+              className="w-full h-48 p-3 bg-[#2A2A40] text-white rounded-lg 
+                       resize-none focus:outline-none focus:ring-2 focus:ring-[#38ff9b]/50"
             />
           </div>
         </div>
-        <div className="text-white px-6 pb-9 space-y-3">
-          <div className="flex items-center gap-2">
-            <p>List of Proxies</p>
-            {validationErr?.proxies && (
-              <p className="text-[#ff3856] font-Jakarta300 text-[14px]">
-                (Invalid proxies format)
-              </p>
-            )}
-          </div>
-          <textarea
-            name="proxies"
-            onChange={handleChange}
-            className="rounded-[10px] bg-[#14141F] w-full h-[240px] p-3 border-solid border-0 outline-none"
-            placeholder="IP:Port:Username:Password"
-          ></textarea>
-        </div>
-      </CustomisedDialog>
+      </Dialog>
 
-      <ModalContainer
-        {...{
-          icon: editIcon,
-          title: "Edit Proxy Group",
-          rightBtnText: "Save",
-          leftBtnText: "Cancel",
-          rightBtnStyle: "edit",
-          open: isEditGroupShow,
-          handleClose: () => {
+      <Dialog
+        open={isEditGroupShow}
+        onClose={() => {
+          setIsEditGroupShow(false);
+          setCreateGroupState(null);
+        }}
+        title="Edit Proxy Group"
+        primaryAction={{
+          label: "Save",
+          onClick: handleEditGroup
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => {
             setIsEditGroupShow(false);
             setCreateGroupState(null);
-          },
-          handleSubmit: handleEditGroup,
+          }
         }}
       >
-        <div className="text-white">
-          <p>Proxy Group Name</p>
-          <div className="rounded-[10px] bg-[#14141F] w-fit mt-2">
-            <input
+        <div className="space-y-4">
+          <div>
+            <label className="text-white block mb-2">Group Name</label>
+            <Input
               name="name"
-              onChange={handleChange}
-              type="text"
               value={createGroupState?.name}
-              className="bg-[#14141F] w-[430px] rounded-[10px] outline-none p-3"
+              onChange={handleChange}
+              placeholder="Enter group name"
+            />
+          </div>
+
+          <div>
+            <label className="text-white block mb-2">Proxies</label>
+            <textarea
+              name="proxies"
+              value={createGroupState?.proxies}
+              onChange={handleChange}
+              placeholder="IP:Port:Username:Password"
+              className="w-full h-48 p-3 bg-[#2A2A40] text-white rounded-lg 
+                       resize-none focus:outline-none focus:ring-2 focus:ring-[#38ff9b]/50"
             />
           </div>
         </div>
-        <div className="text-white mt-6">
-          <p>List of Proxies</p>
-          <textarea
-            name="proxies"
-            value={createGroupState?.proxies}
-            onChange={handleChange}
-            className="rounded-[10px] mt-2 bg-[#14141F] w-full h-[240px] p-3 border-solid border-0 outline-none"
-          ></textarea>
-        </div>
-      </ModalContainer>
+      </Dialog>
 
-      <ModalContainer
-        {...{
-          children: "",
-          title: "Delete Proxy Group?",
-          leftBtnStyle: "",
-          rightBtnStyle: "delete",
-          rightBtnText: "Delete",
-          leftBtnText: "Cancel",
-          description: "Are you sure you want to delete this group?",
-          open: isDeleteGroupShow ? true : false,
-          handleClose: () => setIsDeleteGroupShow(false),
-          handleSubmit: handleDeleteGroup,
+      <Dialog
+        open={!!isDeleteGroupShow}
+        onClose={() => setIsDeleteGroupShow(false)}
+        title="Delete Proxy Group"
+        primaryAction={{
+          label: "Delete",
+          onClick: handleDeleteGroup
         }}
-      />
-
-      <ModalContainer
-        {...{
-          icon: editIcon,
-          title: "Edit All Proxies",
-          rightBtnText: "Edit",
-          leftBtnText: "Cancel",
-          rightBtnStyle: "edit",
-          open: isShowEditAll,
-          handleClose: () => {
-            setIsShowEditAll(false);
-            setEditAllValidation(false);
-          },
-          handleSubmit: handleEditAll,
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => setIsDeleteGroupShow(false)
         }}
       >
-        <div className="text-white my-5">
-          <div className="flex gap-2 items-center">
-            <p>Proxies</p>
-            {editAllValidation && (
-              <p className="text-[#ff3856] font-Jakarta300 text-[14px]">
-                (Invalid proxies format)
-              </p>
-            )}
-          </div>
-          <div className="rounded-[10px] bg-[#14141F] mt-2">
-            <textarea
-              onChange={(e) => setEditAllValue(e.target?.value)}
-              value={editAllValue}
-              className="bg-[#14141F] p-3 w-full rounded-[10px] outline-none h-[300px]"
-              placeholder="IP:Port:Username:Password"
-              rows="10"
-            ></textarea>
-          </div>
-        </div>
-      </ModalContainer>
+        <p className="text-gray-400">
+          Are you sure you want to delete this proxy group? This action cannot be undone.
+        </p>
+      </Dialog>
 
-      <ModalContainer
-        {...{
-          icon: deleteIcon,
-          title: "Delete All Proxies",
-          rightBtnText: "Delete",
-          leftBtnText: "Cancel",
-          rightBtnStyle: "delete",
-          description: "Are you sure you want to delete all proxies?",
-          open: isShowDeleteAll,
-          handleClose: () => setIsShowDeleteAll(false),
-          handleSubmit: handleDeleteAllProxies,
+      <Dialog
+        open={!!isEditAccountShow}
+        onClose={() => {
+          setIsEditAccountShow(false);
+          setIsEditAccountValue(null);
         }}
-      />
-
-      <ModalContainer
-        {...{
-          icon: editIcon,
-          title: "Edit Proxy",
-          rightBtnText: "Edit",
-          leftBtnText: "Cancel",
-          rightBtnStyle: "edit",
-          open: isEditAccountShow ? true : false,
-          handleClose: () => {
+        title="Edit Proxy"
+        primaryAction={{
+          label: "Save",
+          onClick: handleEditAccount
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => {
             setIsEditAccountShow(false);
             setIsEditAccountValue(null);
-          },
-          handleSubmit: handleEditAccount,
+          }
         }}
       >
-        <div className="text-white my-5">
-          <p>Proxy</p>
-          <div className="rounded-[10px] bg-[#14141F] mt-2">
-            <input
+        <div className="space-y-4">
+          <div>
+            <label className="text-white block mb-2">Proxy</label>
+            <Input
+              value={typeof isEditAccountValue === "string"
+                ? isEditAccountValue
+                : `${isEditAccountValue?.proxy}:${isEditAccountValue?.username}:${isEditAccountValue?.password}`
+              }
               onChange={(e) => {
                 const parsedVal = proxiesStrToArray(e.target?.value);
                 setIsEditAccountValue(parsedVal ? parsedVal : e.target?.value);
               }}
-              value={
-                typeof isEditAccountValue === "string"
-                  ? isEditAccountValue
-                  : `${isEditAccountValue?.proxy}:${isEditAccountValue?.username}:${isEditAccountValue?.password}`
-              }
-              type="text"
-              className="bg-[#14141F] p-3 w-full rounded-[10px] outline-none h-[45px]"
+              placeholder="IP:Port:Username:Password"
             />
           </div>
         </div>
-      </ModalContainer>
+      </Dialog>
 
-      <ModalContainer
-        {...{
-          icon: deleteIcon,
-          title: "Delete Proxy",
-          rightBtnText: "Delete",
-          leftBtnText: "Cancel",
-          rightBtnStyle: "delete",
-          description: "Are you sure you want to delete this proxy?",
-          open: isDeleteAccountShow ? true : false,
-          handleClose: () => setIsDeleteAccountShow(false),
-          handleSubmit: handleDeleteAccount,
+      <Dialog
+        open={!!isDeleteAccountShow}
+        onClose={() => setIsDeleteAccountShow(false)}
+        title="Delete Proxy"
+        primaryAction={{
+          label: "Delete",
+          onClick: handleDeleteAccount
         }}
-      />
-    </>
-  );
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => setIsDeleteAccountShow(false)
+        }}
+      >
+        <p className="text-gray-400">
+          Are you sure you want to delete this proxy? This action cannot be undone.
+        </p>
+      </Dialog>
 
-  // Main render
-  return (
-    <div className="h-full pb-20 pt-3 p-8 font-Jakarta600">
-      {isLoading ? (
-        <div className="absolute left-0 right-0 top-10 bottom-0 flex justify-center items-center bg-[#14141F]">
-          <FadeLoader color="#38ff9b" />
-        </div>
-      ) : (
-        <div className="flex h-full gap-6">
-          {/* Left Panel */}
-          <div className="w-72 bg-[#14141F] rounded-[10px] p-5 relative">
-            {/* New Proxy Group Button */}
-            <button
-              onClick={() => setIsOpenGroupModal(true)}
-              className="flex items-center justify-center gap-2 w-full h-[40px] 
-                       bg-[#38ff9b] hover:bg-[#57ffb3] transition-all duration-300 
-                       text-black rounded-[10px] mb-6"
-            >
-              <svg 
-                width="18" 
-                height="18" 
-                viewBox="0 0 24 24" 
-                fill="none"
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              <span className="font-medium">New Proxy Group</span>
-            </button>
-
-            {/* Proxy Groups List */}
-            <div className="space-y-2 overflow-y-auto max-h-[calc(100vh-180px)]">
-              {groupList.map((group) => (
-                <div
-                  key={group.id}
-                  className={`flex items-center justify-between p-3 rounded-[10px] transition-all duration-300
-                           ${group?.id === selectedGroup?.id ? "bg-[#202831]" : "hover:bg-[#202831]"}`}
-                >
-                  <button
-                    onClick={() => handleGroupClicked(group)}
-                    className="flex-1 text-left text-[15px]"
-                  >
-                    {group?.name}
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setCreateGroupState({
-                          ...group,
-                          proxies: parseProxiesArray(group?.proxies),
-                        });
-                        setIsEditGroupShow(true);
-                      }}
-                      className="p-1.5 hover:bg-[#2A2A40] rounded-md transition-all duration-300"
-                    >
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none"
-                        stroke="#38ff9b" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      >
-                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setIsDeleteGroupShow(group)}
-                      className="p-1.5 hover:bg-[#2A2A40] rounded-md transition-all duration-300"
-                    >
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none"
-                        stroke="#ff3856" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <Dialog
+        open={isShowEditAll}
+        onClose={() => {
+          setIsShowEditAll(false);
+          setEditAllValidation(false);
+        }}
+        title="Edit All Proxies"
+        primaryAction={{
+          label: "Save",
+          onClick: handleEditAll
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => {
+            setIsShowEditAll(false);
+            setEditAllValidation(false);
+          }
+        }}
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <label className="text-white">Proxies</label>
+            {editAllValidation && (
+              <span className="text-red-500 text-sm">Invalid proxy format</span>
+            )}
           </div>
-
-          {/* Right Panel */}
-          <div className="flex-1 bg-[#14141F] rounded-[10px] p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl font-medium">Proxy List</h1>
-                <div className="bg-[#38ff9b] text-black px-3 py-1 rounded-[10px] text-sm">
-                  {selectedGroup ? selectedGroup?.proxies?.length : 0}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="file"
-                  accept=".txt"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  ref={fileInputRef}
-                />
-                
-                {/* Action Buttons */}
-                {/* Import Button */}
-                <button
-                  onClick={handleImportClick}
-                  className="flex items-center gap-2 h-[40px] px-4 
-                            bg-[#1B1B26] hover:bg-[#2A2A40] 
-                            rounded-[10px] transition-all duration-300"
-                >
-                  <svg 
-                    width="18" 
-                    height="18" 
-                    viewBox="0 0 24 24" 
-                    fill="none"
-                    stroke="#38ff9b" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  <span>Import</span>
-                </button>
-
-                {/* Export Button */}
-                <button
-                  onClick={handleExport}
-                  className="flex items-center gap-2 h-[40px] px-4 
-                            bg-[#1B1B26] hover:bg-[#2A2A40] 
-                            rounded-[10px] transition-all duration-300"
-                >
-                  <svg 
-                    width="18" 
-                    height="18" 
-                    viewBox="0 0 24 24" 
-                    fill="none"
-                    stroke="#38ff9b" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  <span>Export</span>
-                </button>
-
-                {/* Edit All Button */}
-                <button
-                  onClick={() => {
-                    setEditAllValue(proxiesArrayToStr(selectedGroup?.proxies));
-                    setIsShowEditAll(true);
-                  }}
-                  className="flex items-center gap-2 h-[40px] px-4 
-                            bg-[#1B1B26] hover:bg-[#2A2A40] 
-                            rounded-[10px] transition-all duration-300"
-                >
-                  <svg 
-                    width="18" 
-                    height="18" 
-                    viewBox="0 0 24 24" 
-                    fill="none"
-                    stroke="#38ff9b" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                  </svg>
-                  <span>Edit All</span>
-                </button>
-
-                {/* Delete All Button */}
-                <button
-                  onClick={() => setIsShowDeleteAll(true)}
-                  className="flex items-center gap-2 h-[40px] px-4 
-                            bg-[#1B1B26] hover:bg-[#2A2A40] 
-                            rounded-[10px] transition-all duration-300"
-                >
-                  <svg 
-                    width="18" 
-                    height="18" 
-                    viewBox="0 0 24 24" 
-                    fill="none"
-                    stroke="#ff3856" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  </svg>
-                  <span>Delete All</span>
-                </button>
-              </div>
-            </div>
-
-           {/* Table Section */}
-            <div className="bg-[#1B1B26] rounded-[10px] overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-[#14141F] sticky top-0">
-                  <tr>
-                    {columns.map((col, id) => (
-                      <th
-                        key={id}
-                        className={`p-4 font-semibold whitespace-nowrap ${
-                          id === 0 ? 'text-center' : 'text-left'  // Centramos el header de Task
-                        }`}
-                      >
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#2A2A40]">
-                  {currentRows?.map((row, i) => (
-                    <tr
-                      key={i}
-                      className="hover:bg-[#202831] transition-all duration-300"
-                    >
-                      <td className="p-4 text-center">{row.idx + 1}</td>  {/* Centramos el número */}
-                      <td className="p-4 max-w-[200px] truncate">{row.proxy}</td>
-                      <td className="p-4 max-w-[200px] truncate">{row.username}</td>
-                      <td className="p-4 max-w-[200px] truncate">
-                        {row.password}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setIsEditAccountShow(row);
-                              setIsEditAccountValue(row);
-                            }}
-                            className="p-1.5 hover:bg-[#2A2A40] rounded-md transition-all duration-300"
-                          >
-                            <svg 
-                              width="16" 
-                              height="16" 
-                              viewBox="0 0 24 24" 
-                              fill="none"
-                              stroke="#38ff9b" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round"
-                            >
-                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => setIsDeleteAccountShow(row)}
-                            className="p-1.5 hover:bg-[#2A2A40] rounded-md transition-all duration-300"
-                          >
-                            <svg 
-                              width="16" 
-                              height="16" 
-                              viewBox="0 0 24 24" 
-                              fill="none"
-                              stroke="#ff3856" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round"
-                            >
-                              <path d="M3 6h18" />
-                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center p-4 bg-[#14141F] border-t border-[#2A2A40]">
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center justify-center h-[40px] px-4 
-                              bg-[#1B1B26] hover:bg-[#2A2A40] rounded-[10px] 
-                              transition-all duration-300 disabled:opacity-50 
-                              disabled:cursor-not-allowed mr-2"
-                  >
-                    Previous
-                  </button>
-                  <div className="flex items-center justify-center px-4">
-                    Page {currentPage} of {totalPages}
-                  </div>
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center justify-center h-[40px] px-4 
-                              bg-[#1B1B26] hover:bg-[#2A2A40] rounded-[10px] 
-                              transition-all duration-300 disabled:opacity-50 
-                              disabled:cursor-not-allowed ml-2"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          <textarea
+            onChange={(e) => setEditAllValue(e.target?.value)}
+            value={editAllValue}
+            placeholder="IP:Port:Username:Password"
+            className="w-full h-64 p-3 bg-[#2A2A40] text-white rounded-lg 
+                     resize-none focus:outline-none focus:ring-2 focus:ring-[#38ff9b]/50"
+          />
         </div>
-      )}
+      </Dialog>
 
-      {/* Render all modals */}
-      {renderModals()}
+      <Dialog
+        open={isShowDeleteAll}
+        onClose={() => setIsShowDeleteAll(false)}
+        title="Delete All Proxies"
+        primaryAction={{
+          label: "Delete",
+          onClick: handleDeleteAllProxies
+        }}
+        secondaryAction={{
+          label: "Cancel",
+          onClick: () => setIsShowDeleteAll(false)
+        }}
+      >
+        <p className="text-gray-400">
+          Are you sure you want to delete all proxies? This action cannot be undone.
+        </p>
+      </Dialog>
     </div>
   );
 };

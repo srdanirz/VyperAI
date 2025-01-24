@@ -1,21 +1,56 @@
-import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Play, Pause, RefreshCw, Trash, Plus, Sparkles, Coffee } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Play, Pause, RefreshCw, Trash, Plus, Activity, Clock, Database, AlertTriangle, Settings, GitBranch } from 'lucide-react';
+
+const MetricCard = ({ title, value, change, icon: Icon, chartData }) => (
+  <div className="bg-[#1B1B26] rounded-xl p-6 hover:shadow-lg hover:shadow-[#38ff9b]/5 
+                 transform hover:-translate-y-1 transition-all duration-300">
+    <div className="flex items-start justify-between mb-4">
+      <div>
+        <p className="text-gray-400 text-sm">{title}</p>
+        <p className="text-2xl font-bold text-white mt-1">{value}</p>
+      </div>
+      <div className="p-2 rounded-lg bg-[#38ff9b]/10">
+        <Icon className="w-5 h-5 text-[#38ff9b]" />
+      </div>
+    </div>
+    
+    <div className="h-20">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData}>
+          <Line 
+            type="monotone" 
+            dataKey="value" 
+            stroke="#38ff9b" 
+            strokeWidth={2}
+            dot={false} 
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+    
+    <p className={`text-sm mt-2 ${
+      change > 0 ? 'text-[#38ff9b]' : 'text-red-500'
+    }`}>
+      {change > 0 ? '+' : ''}{change}% this week
+    </p>
+  </div>
+);
 
 const AgentCard = ({ agent, onAction }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div 
-      className="group relative bg-[#2A2A40] rounded-xl p-6 hover:shadow-lg hover:shadow-[#38ff9b]/10 transform hover:-translate-y-1 transition-all duration-300"
+      className="group relative bg-[#2A2A40] rounded-xl p-6 hover:shadow-lg hover:shadow-[#38ff9b]/10 
+                transform hover:-translate-y-1 transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Glow effect on hover */}
-      <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-[#38ff9b]/0 via-[#38ff9b]/5 to-[#38ff9b]/0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
+      <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-[#38ff9b]/0 via-[#38ff9b]/5 
+                    to-[#38ff9b]/0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
 
       <div className="relative">
-        {/* Status indicator */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full ${
@@ -28,31 +63,29 @@ const AgentCard = ({ agent, onAction }) => {
             <button 
               onClick={() => onAction(agent.id, agent.status === 'running' ? 'pause' : 'resume')}
               className="p-2 rounded-lg bg-[#38ff9b]/10 hover:bg-[#38ff9b]/20 text-[#38ff9b] transition-all duration-300"
-              title={agent.status === 'running' ? 'Pause Agent' : 'Start Agent'}
             >
               {agent.status === 'running' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
             <button 
               onClick={() => onAction(agent.id, 'restart')}
               className="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 transition-all duration-300"
-              title="Restart Agent"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button 
               onClick={() => onAction(agent.id, 'delete')}
               className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all duration-300"
-              title="Delete Agent"
             >
               <Trash className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Progress bar with animation */}
+        <p className="text-gray-400 text-sm mb-4">{agent.description}</p>
+
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-400">{agent.description}</span>
+            <span className="text-gray-400">Progress</span>
             <span className="text-[#38ff9b]">{agent.progress}%</span>
           </div>
           <div className="h-2 bg-[#14141F] rounded-full overflow-hidden">
@@ -63,8 +96,7 @@ const AgentCard = ({ agent, onAction }) => {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-3 gap-4">
           {agent.stats.map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
@@ -77,109 +109,188 @@ const AgentCard = ({ agent, onAction }) => {
   );
 };
 
-const QuickStartCard = ({ onAction }) => (
-  <button
-    onClick={() => onAction('quickstart')}
-    className="group relative bg-gradient-to-br from-[#38ff9b]/5 to-[#38ff9b]/10 rounded-xl p-6 border-2 border-dashed border-[#38ff9b]/20 hover:border-[#38ff9b]/40 transition-all duration-300"
-  >
-    <div className="flex flex-col items-center justify-center text-center h-full space-y-4">
-      <div className="p-4 rounded-full bg-[#38ff9b]/10 group-hover:bg-[#38ff9b]/20 transition-colors">
-        <Sparkles className="w-6 h-6 text-[#38ff9b]" />
-      </div>
-      <div>
-        <h3 className="text-lg font-medium text-white mb-2">Quick Start Agent</h3>
-        <p className="text-gray-400 text-sm">Get started with a pre-configured agent in seconds</p>
-      </div>
+const PerformanceChart = ({ data }) => (
+  <div className="bg-[#1B1B26] rounded-xl p-6">
+    <h2 className="text-lg font-medium text-white mb-6">Performance Overview</h2>
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#2A2A40" />
+          <XAxis dataKey="name" stroke="#9A9AB6" />
+          <YAxis stroke="#9A9AB6" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#2A2A40',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white'
+            }}
+          />
+          <Bar dataKey="success" fill="#38ff9b" />
+          <Bar dataKey="failed" fill="#ff4444" />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
-  </button>
+  </div>
 );
 
 const AgentDashboard = () => {
-  const [agents] = useState([
+  const [agents, setAgents] = useState([
     {
       id: 1,
-      name: "Flight Scanner",
+      name: "Web Scraper",
       status: "running",
-      description: "Monitoring flight prices",
+      description: "Monitoring e-commerce prices",
       progress: 65,
       stats: [
-        { label: "Searches", value: "1.2k" },
-        { label: "Alerts", value: "24" },
-        { label: "Uptime", value: "99%" }
+        { label: "Tasks", value: "1.2k" },
+        { label: "Success", value: "98%" },
+        { label: "Uptime", value: "24h" }
       ]
     },
     {
       id: 2,
-      name: "Product Tracker",
+      name: "Data Processor",
       status: "paused",
-      description: "Tracking e-commerce prices",
+      description: "Processing transaction data",
       progress: 42,
       stats: [
-        { label: "Products", value: "847" },
-        { label: "Updates", value: "2.1k" },
-        { label: "Savings", value: "$1.2k" }
+        { label: "Processed", value: "847" },
+        { label: "Success", value: "95%" },
+        { label: "Time", value: "12h" }
       ]
     }
   ]);
 
-  const handleAction = (agentId, action) => {
-    // Implementation
-    console.log(`Agent ${agentId}: ${action}`);
+  const [performanceData] = useState([
+    { name: 'Mon', success: 120, failed: 5 },
+    { name: 'Tue', success: 145, failed: 8 },
+    { name: 'Wed', success: 132, failed: 3 },
+    { name: 'Thu', success: 156, failed: 7 },
+    { name: 'Fri', success: 168, failed: 4 },
+  ]);
+
+  const [metrics] = useState({
+    tasks: {
+      title: "Active Tasks",
+      value: "1,234",
+      change: 12,
+      icon: Activity,
+      chartData: Array.from({ length: 7 }, (_, i) => ({
+        name: `Day ${i + 1}`,
+        value: Math.floor(Math.random() * 100)
+      }))
+    },
+    uptime: {
+      title: "Uptime",
+      value: "99.9%",
+      change: 0.5,
+      icon: Clock,
+      chartData: Array.from({ length: 7 }, () => ({
+        name: "Hour",
+        value: 99 + Math.random()
+      }))
+    },
+    storage: {
+      title: "Storage Used",
+      value: "45.2GB",
+      change: -2.3,
+      icon: Database,
+      chartData: Array.from({ length: 7 }, (_, i) => ({
+        name: `Day ${i + 1}`,
+        value: 40 + Math.random() * 10
+      }))
+    },
+    errors: {
+      title: "Error Rate",
+      value: "0.12%",
+      change: -0.5,
+      icon: AlertTriangle,
+      chartData: Array.from({ length: 7 }, (_, i) => ({
+        name: `Day ${i + 1}`,
+        value: Math.random()
+      }))
+    }
+  });
+
+  const handleAgentAction = (agentId, action) => {
+    setAgents(prevAgents => 
+      prevAgents.map(agent => {
+        if (agent.id === agentId) {
+          switch (action) {
+            case 'pause':
+              return { ...agent, status: 'paused' };
+            case 'resume':
+              return { ...agent, status: 'running' };
+            case 'delete':
+              return null;
+            default:
+              return agent;
+          }
+        }
+        return agent;
+      }).filter(Boolean)
+    );
   };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      {/* Welcome Section */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white">Welcome back! ☕️</h1>
-          <p className="text-gray-400 mt-2">Your agents are working hard. Here's what they've been up to.</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Agent Dashboard</h1>
+          <p className="text-gray-400">Monitor and manage your automation agents</p>
         </div>
-        <button 
-          className="flex items-center gap-2 px-6 py-3 bg-[#38ff9b] text-[#14141F] rounded-xl font-medium hover:bg-[#38ff9b]/90 transform hover:-translate-y-0.5 transition-all duration-300"
-          onClick={() => handleAction(null, 'new')}
-        >
-          <Plus className="w-5 h-5" />
-          New Agent
-        </button>
+        
+        <div className="flex items-center gap-4">
+          <button 
+            className="flex items-center gap-2 px-6 py-3 bg-[#38ff9b] text-[#14141F] rounded-xl 
+                     hover:bg-[#38ff9b]/90 transform hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <Plus className="w-5 h-5" />
+            New Agent
+          </button>
+          <button className="p-2 rounded-lg hover:bg-[#2A2A40] transition-colors">
+            <Settings className="w-5 h-5 text-white" />
+          </button>
+        </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Metrics Grid */}
       <div className="grid grid-cols-4 gap-6 mb-8">
-        {[
-          { label: "Active Agents", value: "4", icon: Coffee, change: "+2 today" },
-          { label: "Tasks Completed", value: "1,234", change: "+12% this week" },
-          { label: "Success Rate", value: "98.5%", change: "+0.5% avg" },
-          { label: "Data Points", value: "45.2K", change: "+2.1K today" }
-        ].map((stat, index) => (
-          <div 
-            key={index}
-            className="bg-[#1B1B26] rounded-xl p-6 hover:bg-[#1B1B26]/80 transition-colors"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-gray-400 text-sm">{stat.label}</p>
-                <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
-              </div>
-              <div className="p-2 rounded-lg bg-[#38ff9b]/10">
-                <stat.icon className="w-5 h-5 text-[#38ff9b]" />
-              </div>
-            </div>
-            <p className="text-[#38ff9b] text-sm mt-2">{stat.change}</p>
-          </div>
+        {Object.values(metrics).map((metric, index) => (
+          <MetricCard key={index} {...metric} />
         ))}
       </div>
 
-      {/* Agents Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Performance Chart */}
+      <div className="mb-8">
+        <PerformanceChart data={performanceData} />
+      </div>
+
+      {/* Active Agents Grid */}
+      <div className="grid grid-cols-2 gap-6">
         {agents.map(agent => (
           <AgentCard 
             key={agent.id} 
             agent={agent} 
-            onAction={handleAction} 
+            onAction={handleAgentAction}
           />
         ))}
-        <QuickStartCard onAction={handleAction} />
+        
+        {/* Add Agent Card */}
+        <button className="bg-[#1B1B26] rounded-xl p-6 border-2 border-dashed border-[#38ff9b]/20 
+                         hover:border-[#38ff9b]/40 transition-colors text-center">
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="p-4 rounded-full bg-[#38ff9b]/10">
+              <GitBranch className="w-8 h-8 text-[#38ff9b]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-white mb-2">Create New Agent</h3>
+              <p className="text-gray-400">Start automating with a new agent</p>
+            </div>
+          </div>
+        </button>
       </div>
     </div>
   );
