@@ -22,23 +22,19 @@ A diferencia de herramientas tradicionales como Zapier, Vyper AI no solo conecta
    - La inteligencia generativa de Vyper AI crea flujos completos basados en descripciones simples, eliminando la necesidad de configuraciones manuales.
    - Ejemplo: "Analiza mis datos de ventas y envíame un reporte diario" genera un flujo completo con agentes configurados automáticamente.
 
-4. **Integración de OpenAI Operator**:
-   - Los flujos de trabajo de Vyper AI pueden aprovechar **Operator** para utilizar modelos personalizados que procesan datos, generan resúmenes y ejecutan tareas avanzadas.
-   - Ejemplo: Analizar grandes volúmenes de datos no estructurados o realizar procesamiento de lenguaje natural especializado.
-
-5. **Flexibilidad de Despliegue**:
+4. **Flexibilidad de Despliegue**:
    - Ejecución en la nube, local o en entornos híbridos, adaptándose a las necesidades de privacidad y seguridad de cada organización.
 
-6. **Procesamiento Avanzado de IA**:
+5. **Procesamiento Avanzado de IA**:
    - Integración nativa de modelos de IA para análisis predictivo, procesamiento de lenguaje natural y generación de contenido dinámico.
 
-7. **Control y Personalización**:
+6. **Control y Personalización**:
    - Flujos completamente configurables, sin limitarse a integraciones predefinidas.
 
-8. **Marketplace Colaborativo**:
+7. **Marketplace Colaborativo**:
    - Espacio para compartir y descargar soluciones avanzadas, fomentando la innovación colectiva.
 
-9. **Dashboards Dinámicos**:
+8. **Dashboards Dinámicos**:
    - Visualización inteligente que adapta los datos según las prioridades y objetivos del usuario, mostrando información clave sin configuraciones adicionales.
 
 ---
@@ -80,7 +76,7 @@ Vyper AI está diseñado para ser fácil de usar, con una interfaz intuitiva y u
 
 5. **Integraciones (Conexiones)**:
    - Herramienta para conectar Vyper AI con APIs, herramientas SaaS y sistemas personalizados.
-   - Amplía las capacidades de automatización con integraciones avanzadas, incluyendo **Operator**.
+   - Amplía las capacidades de automatización con integraciones avanzadas.
 
 6. **Analíticas (Reportes)**:
    - Panel para visualizar métricas y resultados generados por los flujos y agentes.
@@ -116,9 +112,6 @@ Vyper AI está diseñado para ser fácil de usar, con una interfaz intuitiva y u
 ### **6. Dashboards Dinámicos y Adaptativos**
 - Visualización automática de datos clave según prioridades, eliminando la necesidad de configuraciones adicionales.
 
-### **7. Tareas Especializadas con Operator**
-- Utiliza modelos avanzados para procesar documentos extensos, generar resúmenes o realizar análisis predictivos específicos para industrias como finanzas y salud.
-
 ---
 
 ## **Comparación: Vyper AI vs. Zapier**
@@ -129,7 +122,7 @@ Vyper AI está diseñado para ser fácil de usar, con una interfaz intuitiva y u
 | **Facilidad de Uso**      | Muy fácil para tareas simples     | Simplificado con prompts y adaptable a la complejidad |
 | **Personalización**       | Limitada a flujos lineales        | Altamente personalizable y adaptable            |
 | **Privacidad y Control**  | Solo en la nube                   | Opciones locales, híbridas y en la nube         |
-| **Procesamiento de IA**   | Depende de integraciones externas | IA nativa y soporte para Operator               |
+| **Procesamiento de IA**   | Depende de integraciones externas | IA nativa para análisis predictivo y avanzado   |
 | **Complejidad de Flujos** | Tareas simples y predefinidas     | Resolución de problemas dinámicos y complejos   |
 
 ---
