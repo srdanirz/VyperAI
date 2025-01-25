@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, Sparkles, GitBranch, Box, Database } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, Sparkles, GitBranch, Box } from 'lucide-react';
 
-const TutorialStep = ({ step, onNext, onPrev, onSkip, currentStep, totalSteps }) => {
+const TutorialStep = ({ step, onNext, onPrev, onSkip, totalSteps }) => {
   const steps = {
     1: {
       title: "Bienvenido a Vyper AI",
@@ -31,10 +31,10 @@ const TutorialStep = ({ step, onNext, onPrev, onSkip, currentStep, totalSteps })
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
+      key={step}
       className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[480px] 
                  bg-[#1B1B26] rounded-2xl shadow-2xl shadow-black/50 overflow-hidden"
     >
-      {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-[#2A2A40]">
         <motion.div 
           className="h-full bg-[#38ff9b]" 
@@ -125,14 +125,26 @@ const Highlight = ({ selector }) => {
   );
 };
 
-export const Tutorial = () => {
+const StepIndicator = ({ currentStep, totalSteps }) => (
+  <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+    {Array.from({ length: totalSteps }).map((_, i) => (
+      <div
+        key={i}
+        className={`w-2 h-2 rounded-full transition-colors ${
+          i + 1 <= currentStep ? 'bg-[#38ff9b]' : 'bg-gray-400'
+        }`}
+      />
+    ))}
+  </div>
+);
+
+const Tutorial = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [showTutorial, setShowTutorial] = useState(true);
   const totalSteps = 3;
 
   const handleNext = () => {
     if (currentStep === totalSteps) {
-      setShowTutorial(false);
+      onComplete();
     } else {
       setCurrentStep(prev => prev + 1);
     }
@@ -142,23 +154,25 @@ export const Tutorial = () => {
     setCurrentStep(prev => Math.max(1, prev - 1));
   };
 
-  const handleSkip = () => {
-    setShowTutorial(false);
-  };
-
-  if (!showTutorial) return null;
-
   return (
-    <AnimatePresence>
-      <TutorialStep
-        step={currentStep}
-        onNext={handleNext}
-        onPrev={handlePrev}
-        onSkip={handleSkip}
-        totalSteps={totalSteps}
-      />
+    <>
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
+        <AnimatePresence mode="wait">
+          <TutorialStep
+            key={currentStep}
+            step={currentStep}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            onSkip={onComplete}
+            totalSteps={totalSteps}
+          />
+        </AnimatePresence>
+        
+        <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+      </div>
+      
       <Highlight selector={`.tutorial-step-${currentStep}`} />
-    </AnimatePresence>
+    </>
   );
 };
 

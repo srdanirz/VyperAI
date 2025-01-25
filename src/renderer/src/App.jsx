@@ -6,6 +6,7 @@ import { FadeLoader } from "react-spinners";
 import { Toaster } from 'react-hot-toast';
 
 // Components
+import FlowBuilder from "./routes/FlowBuilder";
 import NotFound from "./routes/NotFound";
 import Login from "./routes/Login";
 import Proxy from "./routes/Proxy";
@@ -78,7 +79,7 @@ function App() {
         
         {isAuthenticated ? (
           <Route path="/" element={<Dashboard />}>
-            <Route index element={<Home />} />
+            <Route path="/flows" element={<FlowBuilder />} />
             <Route path="proxy" element={<Proxy />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings/*" element={<Settings />} />
