@@ -22,23 +22,27 @@ A diferencia de herramientas tradicionales como Zapier, Vyper AI no solo conecta
    - La inteligencia generativa de Vyper AI crea flujos completos basados en descripciones simples, eliminando la necesidad de configuraciones manuales.
    - Ejemplo: "Analiza mis datos de ventas y envíame un reporte diario" genera un flujo completo con agentes configurados automáticamente.
 
-4. **Integración de OpenAI Operator**:
+4. **Integración Visual y Control Local**:
+   - Los AI Agents pueden interactuar visualmente con aplicaciones locales y sitios web en tiempo real, incluso en entornos protegidos con CAPTCHA.
+   - Ejemplo: Un agente puede hacer scroll, interactuar con Excel, o realizar clics en botones en sistemas locales.
+
+5. **Integración de OpenAI Operator**:
    - Los flujos de trabajo de Vyper AI pueden aprovechar **Operator** para utilizar modelos personalizados que procesan datos, generan resúmenes y ejecutan tareas avanzadas.
    - Ejemplo: Analizar grandes volúmenes de datos no estructurados o realizar procesamiento de lenguaje natural especializado.
 
-5. **Flexibilidad de Despliegue**:
+6. **Flexibilidad de Despliegue**:
    - Ejecución en la nube, local o en entornos híbridos, adaptándose a las necesidades de privacidad y seguridad de cada organización.
 
-6. **Procesamiento Avanzado de IA**:
+7. **Procesamiento Avanzado de IA**:
    - Integración nativa de modelos de IA para análisis predictivo, procesamiento de lenguaje natural y generación de contenido dinámico.
 
-7. **Control y Personalización**:
+8. **Control y Personalización**:
    - Flujos completamente configurables, sin limitarse a integraciones predefinidas.
 
-8. **Marketplace Colaborativo**:
+9. **Marketplace Colaborativo**:
    - Espacio para compartir y descargar soluciones avanzadas, fomentando la innovación colectiva.
 
-9. **Dashboards Dinámicos**:
+10. **Dashboards Dinámicos**:
    - Visualización inteligente que adapta los datos según las prioridades y objetivos del usuario, mostrando información clave sin configuraciones adicionales.
 
 ---
@@ -93,31 +97,35 @@ Vyper AI está diseñado para ser fácil de usar, con una interfaz intuitiva y u
 
 ## **Casos de Uso Destacados**
 
-### **1. Optimización de Inventarios**
-- Monitoreo en tiempo real de niveles de stock.
-- Predicciones de demanda basadas en IA.
-- Alertas automáticas para evitar quiebres.
+### **1. Resolución Visual y Dinámica en Sitios Web con Protección**
+- **Problema**: Extraer datos en tiempo real de sitios con CAPTCHA o protección avanzada.
+- **Solución**: Los AI Agents utilizan **Capsolver** para superar CAPTCHAs y acceden a datos protegidos. Además, interactúan visualmente para realizar scroll, clics y navegación dinámica.
+- **Impacto**: Acceso completo a datos protegidos y automatización en sitios complejos.
 
-### **2. Scraping Dinámico y Análisis**
-- Uso de proxies y scraping avanzado para recopilar datos de sitios dinámicos.
-- Validación y análisis inmediato con AI Agents.
+### **2. Automatización Completa en Microsoft Excel**
+- **Problema**: Consolidar datos, aplicar fórmulas avanzadas y generar gráficos dinámicos.
+- **Solución**: Los agentes de Vyper interactúan visualmente con Excel, organizan datos, aplican fórmulas y crean gráficos personalizados.
+- **Impacto**: Eliminación de tareas manuales y generación de reportes listos para usar.
 
-### **3. Automatización Empresarial Compleja**
-- Creación de flujos con lógica condicional avanzada.
-- Gestión de procesos financieros o regulatorios en entornos locales.
+### **3. Gestión en Tiempo Real de Redes Sociales**
+- **Problema**: Monitorear hashtags en tiempo real y crear contenido en herramientas locales como Photoshop.
+- **Solución**: Los AI Agents recopilan datos de redes sociales y trabajan directamente con Photoshop para crear contenido automáticamente.
+- **Impacto**: Reducción de tiempo en la gestión y creación de contenido visual.
 
-### **4. Innovación en E-commerce**
-- Monitoreo y ajuste dinámico de precios.
-- Generación de campañas automatizadas basadas en datos de comportamiento del cliente.
+### **4. Control Visual para Sistemas Heredados**
+- **Problema**: Automatizar tareas en software local antiguo sin API disponible.
+- **Solución**: Los agentes actúan como operadores humanos, ingresando datos y generando reportes automáticamente.
+- **Impacto**: Automatización sin necesidad de modernizar sistemas.
 
-### **5. Automatización Basada en Prompts**
-- Los usuarios describen lo que necesitan, como "Automatiza mi proceso de reportes semanales", y Vyper AI configura automáticamente los agentes necesarios.
+### **5. Creación de Reportes Visuales para Marketing**
+- **Problema**: Consolidar datos y generar reportes visuales en PowerPoint.
+- **Solución**: Los agentes recopilan métricas, generan gráficos y los integran en presentaciones de PowerPoint.
+- **Impacto**: Ahorro de tiempo y reportes consistentes y profesionales.
 
-### **6. Dashboards Dinámicos y Adaptativos**
-- Visualización automática de datos clave según prioridades, eliminando la necesidad de configuraciones adicionales.
-
-### **7. Tareas Especializadas con Operator**
-- Utiliza modelos avanzados para procesar documentos extensos, generar resúmenes o realizar análisis predictivos específicos para industrias como finanzas y salud.
+### **6. Procesamiento Automático de Imágenes**
+- **Problema**: Organizar fotos por colores predominantes y etiquetar automáticamente los archivos.
+- **Solución**: Los agentes analizan imágenes localmente, identifican colores y generan etiquetas organizadas.
+- **Impacto**: Organización rápida y precisa de grandes volúmenes de imágenes.
 
 ---
 
@@ -127,7 +135,7 @@ Vyper AI está diseñado para ser fácil de usar, con una interfaz intuitiva y u
 |---------------------------|-----------------------------------|--------------------------------------------------|
 | **Mecanismo Central**     | Conexión de herramientas SaaS     | AI Agents colaborativos y autónomos             |
 | **Facilidad de Uso**      | Muy fácil para tareas simples     | Simplificado con prompts y adaptable a la complejidad |
-| **Personalización**       | Limitada a flujos lineales        | Altamente personalizable y adaptable            |
+| **Interacción Visual**    | No                                | Sí, interacción visual y local en tiempo real   |
 | **Privacidad y Control**  | Solo en la nube                   | Opciones locales, híbridas y en la nube         |
 | **Procesamiento de IA**   | Depende de integraciones externas | IA nativa y soporte para Operator               |
 | **Complejidad de Flujos** | Tareas simples y predefinidas     | Resolución de problemas dinámicos y complejos   |
@@ -141,6 +149,13 @@ Vyper AI busca transformar la automatización avanzada, empoderando a individuos
 **Nuestra misión:** Llevar la automatización más allá de las integraciones, creando soluciones autónomas y dinámicas.
 
 **Nuestra visión:** Un mundo donde la tecnología colabore con las personas para desbloquear nuevos niveles de creatividad y productividad.
+
+---
+
+## **Únete a la Comunidad**
+- [Documentación Oficial](https://docs.vyper-ai.com)
+- [Marketplace](https://marketplace.vyper-ai.com)
+- [Foro de Discusión](https://community.vyper-ai.com)
 
 ---
 
